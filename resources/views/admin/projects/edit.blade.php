@@ -33,79 +33,63 @@
             @endif
             
             <!-- Form -->
-            <form method="POST" action="{{ route('admin.projects.update', $project->id) }}">
+            <form action="{{ route('admin.projects.update', $project->id) }}" method="POST">
                 @csrf
                 @method('PUT')
+
+                <div class="row g-3">
 
                     <!-- Project Name -->
                     <div class="col-12">
                         <label for="name" class="form-label">Project Name</label>
-                        <input type="text" name="name" id="name" class="form-control" placeholder="Enter project name" required>
+                        <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $project->name) }}" required>
                     </div>
 
                     <!-- Project Description -->
                     <div class="col-12">
-                        <label for="name" class="form-label">Project Description</label>
-                     <textarea name="description" rows="4" name="description" id="description" class="form-control" placeholder="Project description" required></textarea>
+                        <label for="description" class="form-label">Project Description</label>
+                        <textarea name="description" id="description" rows="4" class="form-control" required>{{ old('description', $project->description) }}</textarea>
                     </div>
 
-                    
-                <div>
-                    <label class="block text-sm font-medium mb-1">
-                        Project Name
-                    </label>
-                    <input type="text"
-                           name="name"
-                           value="{{ old('name', $project->name) }}"
-                           class="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-indigo-200"
-                           required>
+                    <!-- Project Assign -->
+                    <div class="col-12 col-md-4">
+                        <label for="user_id" class="form-label">Assign User</label>
+                        <select name="user_id" id="user_id" class="form-select" required>
+                            <option value="">Select User</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}"
+                                    {{ old('user_id', $project->user_id) == $user->id ? 'selected' : '' }}>
+                                    {{ $user->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Project Dates -->
+                    <div class="col-12 col-md-4">
+                        <label for="start_date" class="form-label">Start Date</label>
+                        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date', $project->start_date) }}">
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label for="end_date" class="form-label">End Date</label>
+                        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ old('end_date', $project->end_date) }}">
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="mt-4 d-flex justify-content-end gap-2">
+                        <a href="{{ route('admin.projects.index') }}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i> Save Project
+                        </button>
+                    </div>
+
                 </div>
+            </form>
 
-                <!-- Description -->
-                <div>
-                    <label class="block text-sm font-medium mb-1">
-                        Description
-                    </label>
-                    <textarea name="description"
-                              rows="4"
-                              class="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-indigo-200">{{ old('description', $project->description) }}</textarea>
-                </div>
-
-                <!-- Status -->
-                <div>
-                    <label class="block text-sm font-medium mb-1">
-                        Status
-                    </label>
-                    <select name="status"
-                            class="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-indigo-200">
-                        <option value="active" {{ $project->status == 'active' ? 'selected' : '' }}>
-                            Active
-                        </option>
-                        <option value="completed" {{ $project->status == 'completed' ? 'selected' : '' }}>
-                            Completed
-                        </option>
-                    </select>
-                </div>
-
-            </div>
-
-            <!-- Actions -->
-            <div class="flex justify-end gap-3 mt-8">
-                <a href="{{ route('admin.projects.index') }}"
-                   class="px-4 py-2 rounded-lg border text-gray-600 hover:bg-gray-100">
-                    Cancel
-                </a>
-
-                <button type="submit"
-                        class="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">
-                    Update Project
-                </button>
-            </div>
-
-        </form>
-
+        </div>
     </div>
-
 </div>
-
 @endsection

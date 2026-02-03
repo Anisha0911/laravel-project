@@ -1,86 +1,84 @@
 @extends('layouts.admin')
-
 @section('content')
 
-<div class="max-w-7xl mx-auto">
-
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
-            Projects
-        </h2>
-
-        <a href="{{ route('admin.projects.create') }}"
-           class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700
-                  text-white px-4 py-2 rounded-lg shadow">
-            + Add Project
+<div class="container mt-5">
+    <!-- Header: Title + Add User button -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <h2 class="fw-bold mb-3 mb-md-0">Projects</h2>
+        <a href="/admin/projects/create" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> Add Project
         </a>
     </div>
 
-    <!-- Table Card -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
-
-        <div class="overflow-x-auto">
-            <table class="min-w-full text-sm">
-                <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-200">
+<!-- Project Table Card -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle mb-0">
+                <thead class="table-dark">
                     <tr>
-                        <th class="px-6 py-3 text-left">Project Name</th>
-                        <th class="px-6 py-3 text-left">Owner</th>
-                        <th class="px-6 py-3 text-left">Duration</th>
-                        <th class="px-6 py-3 text-right">Actions</th>
+                        <th>Project Name</th>
+                        <th>Description</th>
+                        <th>Assigned To</th>
+                        <th>Duration</th>
+                        <th class="text-center">Action</th>
                     </tr>
                 </thead>
+                <tbody>
+                @forelse($projects as $project)
+                    <tr>
+                        <td class="fw-medium">{{ $project->name }}</td>
+<td class="fw-medium">{{ $project->description }}</td>
+                        <!-- Assigned User -->
+                        <td>
+                            {{ $project->user->name ?? '—' }}
+                        </td>
 
-                <tbody class="divide-y dark:divide-gray-700">
-                    @forelse($projects as $project)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                            <td class="px-6 py-4 font-medium text-gray-800 dark:text-white">
-                                {{ $project->name }}
-                            </td>
+                        <!-- Duration -->
+                        <td>
+                            <span class="text-muted">
+                                {{ $project->start_date ? \Carbon\Carbon::parse($project->start_date)->format('d M Y') : 'N/A' }}
+                                —
+                                {{ $project->end_date ? \Carbon\Carbon::parse($project->end_date)->format('d M Y') : 'N/A' }}
+                            </span>
+                        </td>
 
-                            <td class="px-6 py-4 text-gray-600 dark:text-gray-300">
-                                {{ $project->user->name ?? '—' }}
-                            </td>
+                        <!-- Actions -->
+                        <td class="text-center">
+                            <a href="{{ route('admin.projects.edit', $project->id) }}"
+                               class="btn btn-sm btn-outline-warning me-1">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
 
-                            <td class="px-6 py-4 text-gray-600 dark:text-gray-300">
-                                {{ $project->start_date ?? 'N/A' }}
-                                <span class="mx-1">→</span>
-                                {{ $project->end_date ?? 'N/A' }}
-                            </td>
-
-                            <td class="px-6 py-4 text-right space-x-3">
-                                <a href="{{ route('admin.projects.edit', $project->id) }}"
-                                   class="text-indigo-600 hover:underline">
-                                    Edit
-                                </a>
-
-                                <form action="{{ route('admin.projects.destroy', $project->id) }}"
-                                      method="POST"
-                                      class="inline">
-                                    @csrf
-                                    @method('DELETE')
-
-                                    <button type="submit"
-                                            onclick="return confirm('Are you sure?')"
-                                            class="text-red-600 hover:underline">
-                                        Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                                No projects found.
-                            </td>
-                        </tr>
-                    @endforelse
+                            <form method="POST"
+                                  action="{{ route('admin.projects.destroy', $project->id) }}"
+                                  class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Are you sure you want to delete this project?')">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-3">
+                            No projects found.
+                        </td>
+                    </tr>
+                @endforelse
                 </tbody>
             </table>
         </div>
-
     </div>
+</div>
+
 
 </div>
 
+<!-- Bootstrap Icons (required for pencil/trash/add icons) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 @endsection

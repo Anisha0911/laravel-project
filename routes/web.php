@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\TaskController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +27,8 @@ Route::get('/', function () {
 
 // admins dashboard
 Route::middleware(['web', 'auth', 'admin'])->group(function () {
-    Route::get('/admin/dashboard', [DashboardController::class, 'index']);
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])
+    ->name('admin.dashboard');;
 });
 
 // Users
@@ -47,7 +49,9 @@ Route::middleware(['auth', 'admin'])
     ->group(function () {
         Route::resource('users', UserController::class);
         Route::resource('projects', ProjectController::class);
+        Route::resource('tasks', TaskController::class);
     });
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
