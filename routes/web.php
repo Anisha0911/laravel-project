@@ -5,6 +5,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\TaskController;
+use App\Http\Controllers\TaskCommentController;
+
+// USER PANEL
+use App\Http\Controllers\User\DashboardController as UserDashboard;
+use App\Http\Controllers\User\UserProjectController;
+use App\Http\Controllers\User\UserTaskController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +24,8 @@ use App\Http\Controllers\Admin\TaskController;
 |
 */
 
+
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -25,11 +34,43 @@ Route::get('/', function () {
 //     Route::get('/admin/dashboard', [DashboardController::class, 'index']);
 // });
 
-// admins dashboard
+// Admin Dashboard
 Route::middleware(['web', 'auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])
     ->name('admin.dashboard');;
 });
+
+// User Dashboard
+Route::middleware(['auth'])->group(function () {
+    Route::get('/user/dashboard', [UserDashboard::class, 'index'])
+        ->name('user.dashboard');
+});
+
+
+Route::get('/redirect', function () {
+    if (Auth::user()->role === 'admin') {
+        return redirect('/admin/dashboard');
+    }
+    return redirect('/user/dashboard');
+});
+
+
+// USER PANEL ===============
+
+Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
+    // Projects list for user
+    Route::get('/projects', [UserProjectController::class, 'index'])->name('projects.index');
+
+    // New route: show all tasks for a project
+    Route::get('/projects/{project}/tasks', [UserProjectController::class, 'tasks'])
+        ->name('projects.tasks');
+
+    Route::get('/tasks/{task}', [UserTaskController::class, 'show'])->name('tasks.show');
+});
+
+
+
+
 
 // Users
 // Route::middleware(['auth', 'admin'])->group(function () {
@@ -62,5 +103,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::middleware('auth')->group(function () {
+    Route::post('/tasks/{task}/comments', [TaskCommentController::class, 'store'])
+        ->name('tasks.comments.store');
+});
+
 
 require __DIR__.'/auth.php';

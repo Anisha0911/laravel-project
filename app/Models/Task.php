@@ -28,6 +28,11 @@ class Task extends Model
 
     protected $casts = [
     'due_date' => 'datetime',
-];
+    ];
+
+    public function comments()
+    {
+        return $this->hasMany(TaskComment::class);
+    }
 
 }

@@ -72,7 +72,6 @@
     </div>
 </div>
 
-
 </div>
 
 <!-- Bootstrap Icons (required for pencil/trash/add icons) -->
