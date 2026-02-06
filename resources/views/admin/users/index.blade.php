@@ -25,7 +25,9 @@
                     </thead>
                     <tbody>
                         @forelse($users as $user)
-                        <tr>
+
+ @if($user->role !== 'admin')  <!-- Hide Admin ( Remove This line to Show Admin ) -->
+                         <tr>
                             <td class="fw-medium">{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>
@@ -51,7 +53,9 @@
                                 </form>
                             </td>
                         </tr>
-                        @empty
+
+    @endif <!-- Hide Admin ( Remove This line to Show Admin ) -->
+                            @empty
                         <tr>
                             <td colspan="4" class="text-center text-muted py-3">No users found.</td>
                         </tr>

@@ -7,6 +7,10 @@ use App\Models\TaskComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use App\Models\User; // ✅ ADD THIS
+use App\Notifications\TaskNotification; // ✅ ADD THIS
+
+
 class TaskCommentController extends Controller
 {
     public function store(Request $request, Task $task)
@@ -32,6 +36,35 @@ class TaskCommentController extends Controller
             'audio_path' => $data['audio_path'] ?? null,
         ]);
 
+        // Notify opposite role
+        $task = $task;
+
+// 🔔 Notify assigned user or admin(s)
+if (Auth::user()->role === 'admin') {
+    // Admin commented → notify assigned user
+    if ($task->user_id && $task->user_id !== Auth::id()) {
+        $recipient = User::find($task->user_id);
+        if ($recipient) {
+            $recipient->notify(new TaskNotification(
+                Auth::user()->name . ' commented on a task',
+                $task->id
+            ));
+        }
+    }
+} else {
+    // User commented → notify all admins (except commenter)
+    $admins = User::where('role', 'admin')
+                  ->where('id', '!=', Auth::id())
+                  ->get();
+
+    foreach ($admins as $admin) {
+        $admin->notify(new TaskNotification(
+            Auth::user()->name . ' commented on a task',
+            $task->id
+        ));
+    }
+}
         return back();
     }
 }
+

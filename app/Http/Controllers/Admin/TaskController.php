@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\Project;
 use App\Models\User;
+use App\Notifications\TaskNotification;
 
 class TaskController extends Controller
 {
@@ -30,13 +31,24 @@ class TaskController extends Controller
             'title' => 'required',
             'project_id' => 'required|exists:projects,id',
             'user_id' => 'required|exists:users,id',
+            'status' => 'required',
+            'due_date' => 'nullable|date',
         ]);
 
-        Task::create($request->all());
+        // Create task first
+        $task = Task::create($request->all());
 
-        // return redirect()->route('tasks.index')->with('success', 'Task created');
-         return redirect()->route('admin.tasks.index')
-                     ->with('success', 'Task created successfully.');
+        // 🔹 Notify assigned user
+        $user = User::find($task->user_id);
+        if ($user) {
+            $user->notify(new TaskNotification(
+                'A new task has been assigned to you',
+                $task->id
+            ));
+        }
+
+        return redirect()->route('admin.tasks.index')
+            ->with('success', 'Task Created Successfully!');
     }
 
     public function edit(Task $task)
@@ -52,22 +64,54 @@ class TaskController extends Controller
     {
         $request->validate([
             'title' => 'required',
-            'project_id' => 'required',
-            'user_id' => 'required',
+            'project_id' => 'required|exists:projects,id',
+            'user_id' => 'required|exists:users,id',
+            'status' => 'required',
+            'due_date' => 'nullable|date',
         ]);
 
+        // 🔹 Check if assigned user changed
+        if ($task->user_id != $request->user_id) {
+            $user = User::find($request->user_id);
+            if ($user) {
+                $user->notify(new TaskNotification(
+                    'A task has been assigned to you',
+                    $task->id
+                ));
+            }
+        }
+
+        // 🔹 Check if status changed
+        if ($task->status != $request->status) {
+            $user = User::find($request->user_id);
+            if ($user) {
+                $user->notify(new TaskNotification(
+                    'Task status changed to '.$request->status,
+                    $task->id
+                ));
+            }
+        }
+
+        // Update task
         $task->update($request->all());
-     return redirect()->route('admin.tasks.index')->with('success', 'Task updated');
-        }
 
-        public function destroy(Task $task)
-        {
-            $task->delete();
+        return redirect()->route('admin.tasks.index')
+            ->with('success', 'Task Updated Successfully!');
+    }
 
-            return redirect()
-                ->route('admin.tasks.index')
-                ->with('success', 'Task deleted successfully');
-        }
+    public function destroy(Task $task)
+    {
+        $task->delete();
 
+        return redirect()->route('admin.tasks.index')
+            ->with('success', 'Task Deleted Successfully!');
+    }
 
+    // 🔹 ADD THIS SHOW METHOD TO FIX NOTIFICATION LINKS
+    public function show(Task $task)
+    {
+        $task->load('project', 'user', 'comments');
+
+        return view('admin.tasks.show', compact('task'));
+    }
 }

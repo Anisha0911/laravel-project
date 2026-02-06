@@ -48,7 +48,7 @@ class UserController extends Controller
     ]);
 
  return redirect()->route('admin.users.index')
-                     ->with('success', 'User created successfully.');
+                     ->with('success', 'User Created Successfully!');
 }
 
 public function update(Request $request, User $user)
@@ -62,14 +62,14 @@ public function update(Request $request, User $user)
     $user->update($request->only('name', 'email', 'role'));
 
 return redirect()->route('admin.users.index')
-                     ->with('success', 'User updated successfully.');
+                     ->with('success', 'User Updated Successfully!');
 
 }
 
 public function destroy(User $user)
 {
     $user->delete();
-    return back()->with('success', 'User deleted');
+    return back()->with('success', 'User Deleted Successfully!');
 }
 
 

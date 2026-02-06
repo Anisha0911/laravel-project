@@ -12,7 +12,6 @@ use App\Http\Controllers\User\DashboardController as UserDashboard;
 use App\Http\Controllers\User\UserProjectController;
 use App\Http\Controllers\User\UserTaskController;
 
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -65,10 +64,18 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     Route::get('/projects/{project}/tasks', [UserProjectController::class, 'tasks'])
         ->name('projects.tasks');
 
+    Route::get('/tasks', [UserTaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/{task}', [UserTaskController::class, 'show'])->name('tasks.show');
 });
 
 
+
+
+// NOTIFICATION ROUTE
+Route::get('/notifications', function () {
+    auth()->user()->unreadNotifications->markAsRead();
+    return view('notifications.index');
+})->name('notifications');
 
 
 

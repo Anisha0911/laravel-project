@@ -35,7 +35,7 @@ public function store(Request $request)
 
     Project::create($request->all());
 
-    return redirect()->route('admin.projects.index')->with('success', 'Project created');
+    return redirect()->route('admin.projects.index')->with('success', 'Project Created Successfully!');
 }
 
 // edit project
@@ -55,7 +55,7 @@ public function update(Request $request, Project $project)
 
     $project->update($request->all());
 
-    return redirect()->route('admin.projects.index')->with('success', 'Project updated');
+    return redirect()->route('admin.projects.index')->with('success', 'Project Updated Successfully!');
 }
 
 public function destroy(Project $project)
@@ -64,6 +64,6 @@ public function destroy(Project $project)
 
     return redirect()
         ->route('admin.projects.index')
-        ->with('success', 'Project deleted successfully');
+        ->with('success', 'Project Deleted Successfully!');
 }
 }

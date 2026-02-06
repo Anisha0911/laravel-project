@@ -18,6 +18,24 @@
         .sidebar-desktop {
             min-height: 100vh;
         }
+        .navbar .bi-bell:hover {
+    color: #0d6efd; /* Bootstrap primary color */
+    transform: scale(1.2);
+    transition: transform 0.2s, color 0.2s;
+}
+
+.alert-dismissible {
+    transform: translateY(-20px); /* start slightly above */
+    opacity: 0;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.alert-dismissible.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+
     </style>
 </head>
 <body>
@@ -33,7 +51,21 @@
             <i class="bi bi-list"></i>
         </button>
 
-        <span class="navbar-brand fw-bold ms-2">Admin Panel</span>
+@php
+    $panelName = auth()->user()->role === 'admin' ? 'Admin Panel' : 'User Panel';
+@endphp
+
+<span class="navbar-brand fw-bold ms-2">{{ $panelName }}</span>
+
+<a href="{{ route('notifications') }}" class="position-relative text-dark me-3">
+    <i class="bi bi-bell fs-4"></i>
+    @if(auth()->user()->unreadNotifications->count() > 0)
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ auth()->user()->unreadNotifications->count() }}
+            <span class="visually-hidden">unread notifications</span>
+        </span>
+    @endif
+</a>
 
         <div class="ms-auto dropdown">
             <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
@@ -41,6 +73,8 @@
                 <i class="bi bi-person-circle fs-4 me-2"></i>
                 <span>{{ auth()->user()->name }}</span>
             </a>
+
+           
 
 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
     <li>
@@ -66,16 +100,65 @@
     </div>
 </nav>
 
+
 <div class="container-fluid">
+
     <div class="row">
 
-        <!-- DESKTOP SIDEBAR -->
-        <div class="col-lg-2 d-none d-lg-block p-0">
-            @include('admin.sidebar')
-        </div>
+<!-- DESKTOP SIDEBAR -->
+<div class="col-lg-2 d-none d-lg-block p-0">
+    @if(auth()->user()->role == 'admin')
+        @include('admin.sidebar')
+    @else
+        @include('user.sidebar')
+    @endif
+</div>
+
+
 
         <!-- MAIN CONTENT -->
         <div class="col-12 col-lg-10 p-4">
+            
+            <!-- Success Message -->
+            <!-- @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            @endif -->
+
+@if(session('success'))
+<div id="successAlert" class="alert alert-success alert-dismissible fade position-fixed top-1 start-50 translate-middle-x mt-3 z-index-1050" role="alert" style="min-width: 300px;">
+    {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+<!-- Error Messages -->
+@if($errors->any())
+<div id="errorAlert" class="alert alert-danger alert-dismissible fade position-fixed top-1 start-50 translate-middle-x mt-3 z-index-1050" role="alert" style="min-width: 300px;">
+    <ul class="mb-0">
+        @foreach($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+
+            <!-- Error Messages -->
+            <!-- @if($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif -->
+
+
             @yield('content')
         </div>
 
@@ -85,14 +168,21 @@
 <!-- MOBILE SIDEBAR -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title">Admin Menu</h5>
+        <h5 class="offcanvas-title">
+            @if(auth()->user()->role == 'admin') Admin Menu @else User Menu @endif
+        </h5>
         <button class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body p-0">
-        @include('admin.sidebar')
+        @if(auth()->user()->role == 'admin')
+            @include('admin.sidebar')
+        @else
+            @include('user.sidebar')
+        @endif
     </div>
 </div>
-
+@include('components.delete-modal')
+<script src="{{ asset('js/delete-modal.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

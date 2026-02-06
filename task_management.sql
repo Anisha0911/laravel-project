@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 04, 2026 at 01:43 PM
+-- Generation Time: Feb 05, 2026 at 03:22 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -60,7 +60,36 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (4, '2019_12_14_000001_create_personal_access_tokens_table', 1),
 (5, '2026_01_29_123037_add_role_to_users_table', 2),
 (6, '2026_01_30_110735_create_projects_table', 3),
-(7, '2026_02_03_105708_create_tasks_table', 4);
+(7, '2026_02_03_105708_create_tasks_table', 4),
+(8, '2026_02_04_131904_create_task_comments_table', 5),
+(9, '2026_02_05_113301_create_notifications_table', 6);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` char(36) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `notifiable_type` varchar(255) NOT NULL,
+  `notifiable_id` bigint(20) UNSIGNED NOT NULL,
+  `data` text NOT NULL,
+  `read_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `type`, `notifiable_type`, `notifiable_id`, `data`, `read_at`, `created_at`, `updated_at`) VALUES
+('24665de4-f8be-4bca-b6f5-eaed79f2f105', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 5, '{\"message\":\"Developer commented on a task\",\"task_id\":1}', '2026-02-05 07:36:25', '2026-02-05 07:36:17', '2026-02-05 07:36:25'),
+('733e802e-7bb9-468c-bc48-a4ec310714b9', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 10, '{\"message\":\"Anisha Prajapati commented on a task\",\"task_id\":1}', '2026-02-05 07:36:10', '2026-02-05 07:35:55', '2026-02-05 07:36:10'),
+('d26c27d3-3328-49fa-8fff-494dff877f7a', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 10, '{\"message\":\"Anisha Prajapati commented on a task\",\"task_id\":1}', '2026-02-05 07:01:06', '2026-02-05 07:00:20', '2026-02-05 07:01:06'),
+('fa6a604c-80b9-4040-9c27-bd73ebe7aee3', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 10, '{\"message\":\"Anisha Prajapati commented on a task\",\"task_id\":1}', '2026-02-05 07:27:08', '2026-02-05 07:26:57', '2026-02-05 07:27:08');
 
 -- --------------------------------------------------------
 
@@ -122,7 +151,8 @@ CREATE TABLE `projects` (
 --
 
 INSERT INTO `projects` (`id`, `name`, `description`, `user_id`, `start_date`, `end_date`, `created_at`, `updated_at`) VALUES
-(6, 'project', 's', 5, '2026-02-02', '2026-02-26', '2026-02-03 03:19:47', '2026-02-03 03:19:47');
+(6, 'project', 'To Dev', 10, '2026-02-02', '2026-02-26', '2026-02-03 03:19:47', '2026-02-05 03:36:48'),
+(7, 'RT', 'sxwdwdwed', 8, '2026-02-11', '2026-02-13', '2026-02-05 03:12:54', '2026-02-05 04:17:26');
 
 -- --------------------------------------------------------
 
@@ -147,7 +177,37 @@ CREATE TABLE `tasks` (
 --
 
 INSERT INTO `tasks` (`id`, `title`, `description`, `project_id`, `user_id`, `status`, `due_date`, `created_at`, `updated_at`) VALUES
-(1, 'Task 1', 'Description', 6, 10, 'pending', '2026-02-07', '2026-02-03 05:54:37', '2026-02-03 07:01:57');
+(1, 'Task 1', 'Description', 6, 10, 'in_progress', '2026-02-07', '2026-02-03 05:54:37', '2026-02-05 04:05:48'),
+(3, 'Task 2', 'To check task comments part is working proper or not', 6, 10, 'in_progress', '2026-02-12', '2026-02-05 01:14:35', '2026-02-05 04:20:53');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `task_comments`
+--
+
+CREATE TABLE `task_comments` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `task_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `comment` text DEFAULT NULL,
+  `file_path` varchar(255) DEFAULT NULL,
+  `audio_path` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `task_comments`
+--
+
+INSERT INTO `task_comments` (`id`, `task_id`, `user_id`, `comment`, `file_path`, `audio_path`, `created_at`, `updated_at`) VALUES
+(1, 1, 5, 'ddd', 'task-files/YgiD8AoBlSjVrd9o39kMPUga97eW8TIbomf0X7Fh.jpg', NULL, '2026-02-04 08:28:18', '2026-02-04 08:28:18'),
+(2, 1, 5, 'eeeee', NULL, NULL, '2026-02-04 08:28:29', '2026-02-04 08:28:29'),
+(3, 1, 10, 'testing from dev user', NULL, NULL, '2026-02-05 03:53:17', '2026-02-05 03:53:17'),
+(4, 1, 5, 'updates ?', NULL, NULL, '2026-02-05 06:47:29', '2026-02-05 06:47:29'),
+(15, 1, 5, '666', NULL, NULL, '2026-02-05 07:35:55', '2026-02-05 07:35:55'),
+(16, 1, 10, '999', NULL, NULL, '2026-02-05 07:36:17', '2026-02-05 07:36:17');
 
 -- --------------------------------------------------------
 
@@ -195,6 +255,13 @@ ALTER TABLE `migrations`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `notifications_notifiable_type_notifiable_id_index` (`notifiable_type`,`notifiable_id`);
+
+--
 -- Indexes for table `password_reset_tokens`
 --
 ALTER TABLE `password_reset_tokens`
@@ -224,6 +291,14 @@ ALTER TABLE `tasks`
   ADD KEY `tasks_user_id_foreign` (`user_id`);
 
 --
+-- Indexes for table `task_comments`
+--
+ALTER TABLE `task_comments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `task_comments_task_id_foreign` (`task_id`),
+  ADD KEY `task_comments_user_id_foreign` (`user_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -244,7 +319,7 @@ ALTER TABLE `failed_jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`
@@ -256,13 +331,19 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `task_comments`
+--
+ALTER TABLE `task_comments`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -286,6 +367,13 @@ ALTER TABLE `projects`
 ALTER TABLE `tasks`
   ADD CONSTRAINT `tasks_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `tasks_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `task_comments`
+--
+ALTER TABLE `task_comments`
+  ADD CONSTRAINT `task_comments_task_id_foreign` FOREIGN KEY (`task_id`) REFERENCES `tasks` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `task_comments_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

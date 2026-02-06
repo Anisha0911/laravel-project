@@ -12,12 +12,30 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
+// Projects assigned to user (for table display)
+        $myProjects = Project::whereHas('tasks', function($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })->get();
+
+        
+        // Total projects count for card
+        $projectsCount = $myProjects->count();
+
+        // Total tasks assigned to user
+        $tasksCount = Task::where('user_id', $user->id)->count();
+
+        // Completed tasks assigned to user
+        $completedTasksCount = Task::where('user_id', $user->id)
+                                   ->where('status', 'completed')
+                                   ->count();
+
+
+
         return view('user.dashboard', [
-            'projects' => Project::where('user_id', $user->id)->count(),
-            'tasks' => Task::where('user_id', $user->id)->count(),
-            'completedTasks' => Task::where('user_id', $user->id)
-                                    ->where('status', 'completed')
-                                    ->count(),
+            'projects' => $projectsCount,
+            'tasks' => $tasksCount,
+            'completedTasks' => $completedTasksCount,
+            'myProjects' => $myProjects, // <--- Added this
         ]);
     }
 

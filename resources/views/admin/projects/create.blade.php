@@ -13,26 +13,6 @@
         <!-- Card -->
     <div class="card shadow-sm">
         <div class="card-body">
-
-            <!-- Success Message -->
-            @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            @endif
-
-            <!-- Error Messages -->
-            @if($errors->any())
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
             <!-- Form -->
              <form action="{{ route('admin.projects.store') }}" method="POST">
                 @csrf
@@ -56,7 +36,9 @@
                         <select name="user_id" id="user_id" class="form-select" required>
                         <option value="">Select User</option>
                              @foreach($users as $user)
+                              @if($user->role === 'user')
                         <option value="{{ $user->id }}">{{ $user->name }}</option>
+                              @endif
                             @endforeach
                         </select>
                     </div>
