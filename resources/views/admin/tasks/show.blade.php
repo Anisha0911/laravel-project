@@ -16,7 +16,40 @@
             <h4>{{ $task->title }}</h4>
             <p><strong>Project:</strong> {{ $task->project->name }}</p>
             <p><strong>Assigned To:</strong> {{ $task->user->name }}</p>
-            <p><strong>Status:</strong> {{ ucfirst($task->status) }}</p>
+            <!-- <p><strong>Status:</strong> {{ ucfirst($task->status) }}</p> -->
+             @php
+    // Status Colors
+    $statusColors = [
+        'pending' => 'secondary',
+        'in_progress' => 'primary',
+        'review' => 'warning',
+        'hold' => 'dark',
+        'completed' => 'success',
+    ];
+
+    // Priority Colors
+    $priorityColors = [
+        'low' => 'success',
+        'medium' => 'warning',
+        'high' => 'danger',
+        'urgent' => 'dark',
+    ];
+@endphp
+
+<p>
+    <strong>Status:</strong> 
+    <span class="badge bg-{{ $statusColors[$task->status] ?? 'secondary' }}">
+        {{ ucfirst(str_replace('_', ' ', $task->status)) }}
+    </span>
+</p>
+
+<p>
+    <strong>Priority:</strong> 
+    <span class="badge bg-{{ $priorityColors[$task->priority] ?? 'secondary' }}">
+        {{ ucfirst($task->priority) }}
+    </span>
+</p>
+<!-- ------------------------------------- -->
             <p><strong>Due Date:</strong> {{ $task->due_date ? $task->due_date->format('Y-m-d') : 'N/A' }}</p>
             <p>{{ $task->description }}</p>
         </div>
@@ -31,7 +64,7 @@
                 @csrf
                 <div class="row g-3">
                     <div class="col-12">
-                        <textarea name="comment" rows="3" class="form-control" placeholder="Write a comment..."></textarea>
+                        <textarea name="comment" rows="3" class="form-control" placeholder="Write a comment..." required></textarea>
                     </div>
                     <div class="col-12 col-md-3">
                         <input type="file" name="file" class="form-control">

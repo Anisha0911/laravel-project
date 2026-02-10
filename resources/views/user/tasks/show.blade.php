@@ -10,29 +10,133 @@
         </a>
     </div>
 
+@php
+    $statusMap = [
+        'pending' => ['secondary', 'bi-clock'],
+        'in_progress' => ['primary', 'bi-arrow-repeat'],
+        'review' => ['warning', 'bi-eye'],
+        'hold' => ['dark', 'bi-pause-circle'],
+        'completed' => ['success', 'bi-check-circle'],
+    ];
 
-    <!-- Task Details Card -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h4>{{ $task->title }}</h4>
-            <p><strong>Project:</strong> {{ $task->project->name }}</p>
-            <p><strong>Assigned To:</strong> {{ $task->user->name }}</p>
-            <p><strong>Status:</strong> {{ ucfirst($task->status) }}</p>
-            <p><strong>Due Date:</strong> {{ $task->due_date ? $task->due_date->format('Y-m-d') : 'N/A' }}</p>
-            <p>{{ $task->description }}</p>
+    $priorityMap = [
+        'low' => ['success', 'bi-arrow-down'],
+        'medium' => ['warning', 'bi-dash-circle'],
+        'high' => ['danger', 'bi-arrow-up'],
+        'urgent' => ['dark', 'bi-exclamation-triangle'],
+    ];
+
+    $statusColor = $statusMap[$task->status][0] ?? 'secondary';
+    $statusIcon  = $statusMap[$task->status][1] ?? 'bi-question-circle';
+
+    $priorityColor = $priorityMap[$task->priority][0] ?? 'secondary';
+    $priorityIcon  = $priorityMap[$task->priority][1] ?? 'bi-dash';
+@endphp
+<!-- Task Details Card -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <!-- {{-- Title --}} -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-3">
+            <h4 class="fw-bold mb-2 mb-md-0">{{ $task->title }}</h4>
+
+            <!-- {{-- Status --}} -->
+            <div>
+               <strong>Status: </strong> <span id="statusView">
+                    <span class="badge bg-{{ $statusColor }} px-3 py-2">
+                        <i class="bi {{ $statusIcon }}"></i>
+                        {{ ucfirst(str_replace('_',' ', $task->status)) }}
+                    </span>
+
+                    <i class="bi bi-pencil-square ms-2 text-primary"
+                       style="cursor:pointer"
+                       onclick="toggleStatusEdit()"></i>
+                </span>
+            </div>
         </div>
+
+        <!-- {{-- Status Edit Form (hidden) --}} -->
+        <form id="statusEditForm"
+              method="POST"
+              action="{{ route('user.user.tasks.show', $task->id) }}"
+              class="d-none mb-3">
+            @csrf
+
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <select name="status" class="form-select form-select-sm w-auto">
+                    @foreach(['pending','in_progress','review','hold','completed'] as $s)
+                        <option value="{{ $s }}" {{ $task->status === $s ? 'selected' : '' }}>
+                            {{ ucfirst(str_replace('_',' ', $s)) }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <button class="btn btn-sm btn-success">Save</button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        onclick="toggleStatusEdit()">
+                    Cancel
+                </button>
+            </div>
+        </form>
+
+        <hr>
+
+        {{-- Info Grid --}}
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <div class="small text-muted">Project</div>
+                <div class="fw-semibold">{{ $task->project->name ?? '—' }}</div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="small text-muted">Assigned To</div>
+                <div class="fw-semibold">{{ $task->user->name }}</div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="small text-muted">Created At</div>
+                <div class="fw-semibold">
+                    {{ $task->created_at?->format('d M Y') ?? 'N/A' }}
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="small text-muted">Due Date</div>
+                <div class="fw-semibold">
+                    {{ $task->due_date?->format('d M Y') ?? 'N/A' }}
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="small text-muted">Priority</div>
+                <span class="badge bg-{{ $priorityColor }}">
+                    <i class="bi {{ $priorityIcon }}"></i>
+                    {{ ucfirst($task->priority) }}
+                </span>
+            </div>
+        </div>
+
+        {{-- Description --}}
+        <div class="mt-4">
+            <div class="small text-muted mb-1">Description</div>
+            <div class="p-3 bg-light rounded">
+                {{ $task->description ?? 'No description provided.' }}
+            </div>
+        </div>
+
     </div>
+</div>
 
     <!-- Task Comments Section -->
     <div class="card shadow-sm mb-4">
         <div class="card-body">
-            <h4>Task Discussion</h4>
+            <h4> <i class="bi bi-list-check fs-0 text-success"></i> Task Updates</h4>
 
             <form method="POST" action="{{ route('tasks.comments.store', $task) }}" enctype="multipart/form-data">
                 @csrf
                 <div class="row g-3">
                     <div class="col-12">
-                        <textarea name="comment" rows="3" class="form-control" placeholder="Write a comment..."></textarea>
+                        <textarea name="comment" rows="3" class="form-control" placeholder="Write a comment..." required></textarea>
                     </div>
                     <div class="col-12 col-md-3">
                         <input type="file" name="file" class="form-control">
@@ -71,7 +175,12 @@
     </div>
     @endforeach
 </div>
-
+<script>
+function toggleStatusEdit() {
+    document.getElementById('statusView').classList.toggle('d-none');
+    document.getElementById('statusEditForm').classList.toggle('d-none');
+}
+</script>
 @endsection
 
 

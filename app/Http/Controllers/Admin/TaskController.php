@@ -33,7 +33,9 @@ class TaskController extends Controller
             'user_id' => 'required|exists:users,id',
             'status' => 'required',
             'due_date' => 'nullable|date',
-        ]);
+            'priority' => 'required',
+            'created_date' => 'nullable|date',
+        ]);   
 
         // Create task first
         $task = Task::create($request->all());
@@ -68,6 +70,8 @@ class TaskController extends Controller
             'user_id' => 'required|exists:users,id',
             'status' => 'required',
             'due_date' => 'nullable|date',
+            'priority' => 'nullable',
+            'created_date' => 'nullable|date',
         ]);
 
         // 🔹 Check if assigned user changed

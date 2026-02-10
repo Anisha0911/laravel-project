@@ -1,4 +1,4 @@
-<aside class="d-flex flex-column bg-white border-end sidebar-desktop" style="height: 100vh;">
+<aside class="d-flex flex-column bg-white" style="height: -webkit-fill-available;">
 
     <!-- Top Header -->
     <div class="p-4 border-bottom">
@@ -49,4 +49,3 @@
     </div>
 
 </aside>
-

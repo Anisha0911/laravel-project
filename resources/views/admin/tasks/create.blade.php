@@ -66,7 +66,25 @@
                             <option value="completed">Completed</option>
                         </select>
                     </div>
-                    
+
+                    <!-- Task Priority -->
+                    <div class="col-12 col-md-4">
+                        <label for="priority" class="form-label">Task Priority</label>
+                        <select name="priority" id="priority" class="form-select" required>
+                            <option value="">Select Priority</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+
+                    <!-- Task Creation Date -->
+                    <div class="col-12 col-md-4">
+                        <label for="created_date" class="form-label">Task Creation Date</label>
+                        <input type="date" name="created_date" id="created_date" class="form-control" value="{{ date('Y-m-d') }}">
+                    </div>
+
                     <!-- Task Due Dates -->
                     <div class="col-12 col-md-4">
                         <label for="due_date" class="form-label">Due Date</label>

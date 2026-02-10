@@ -35,7 +35,7 @@ if ($user->role === 'admin') {
     return redirect('/admin/dashboard');
 }
 
-return redirect('/dashboard');
+return redirect('/user/dashboard');
 
     }
 

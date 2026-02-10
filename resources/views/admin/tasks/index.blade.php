@@ -46,14 +46,18 @@
                             <i class="bi bi-pencil-fill"></i>
                         </a>
 
+                        <a href="{{ route('admin.tasks.show', $task->id) }}"
+                            class="btn btn-sm btn-outline-primary me-1">
+                            <i class="bi bi-eye-slash-fill"></i>
+                        </a>
 
-<button type="button"
-        class="btn btn-sm btn-outline-danger"
-        data-bs-toggle="modal"
-        data-bs-target="#globalDeleteModal"
-        data-action="{{ route('admin.tasks.destroy', $task->id) }}">
-    <i class="bi bi-trash-fill"></i>
-</button>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#globalDeleteModal"
+                                data-action="{{ route('admin.tasks.destroy', $task->id) }}">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
 
                     </td>
                     </tr>

@@ -13,7 +13,9 @@ class Task extends Model
         'project_id',
         'user_id',
         'status',
-        'due_date'
+        'due_date',
+        'priority',
+        'created_date'
     ];
 
     public function project()
@@ -28,6 +30,7 @@ class Task extends Model
 
     protected $casts = [
     'due_date' => 'datetime',
+    'created_date' => 'datetime',
     ];
 
     public function comments()

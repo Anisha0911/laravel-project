@@ -26,21 +26,24 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
-
-        $request->user()->save();
-
         $user = $request->user();
 
-if ($user->role === 'admin') {
-    return redirect('/admin/dashboard')->with('status', 'profile-updated');
-}
+        $user->fill($request->validated());
 
-return redirect('/dashboard')->with('status', 'profile-updated');
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        // Redirect to the correct dashboard based on role
+        if ($user->role === 'admin') {
+            return Redirect::route('admin.dashboard')
+                ->with('status', 'profile-updated');
+        }
+
+        return Redirect::route('user.dashboard')
+            ->with('status', 'profile-updated');
     }
 
     /**

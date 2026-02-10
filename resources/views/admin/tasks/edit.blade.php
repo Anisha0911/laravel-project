@@ -68,10 +68,28 @@
                         </select>
                     </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label">Due Date</label>
-                        <input type="date" name="due_date" value="{{ $task->due_date?->format('Y-m-d') }}" class="form-control">
-                    </div>
+<div class="col-md-4">
+    <label class="form-label">Due Date</label>
+    <input type="date" name="due_date" value="{{ $task->due_date?->format('Y-m-d') }}" class="form-control">
+</div>
+
+<!-- Priority -->
+<div class="col-md-4">
+    <label class="form-label">Task Priority</label>
+    <select name="priority" class="form-select">
+        <option value="">Select Priority</option>
+        <option value="low" @selected($task->priority=='low')>Low</option>
+        <option value="medium" @selected($task->priority=='medium')>Medium</option>
+        <option value="high" @selected($task->priority=='high')>High</option>
+        <option value="urgent" @selected($task->priority=='urgent')>Urgent</option>
+    </select>
+</div>
+
+<!-- Created Date -->
+<div class="col-md-4">
+    <label class="form-label">Task Creation Date</label>
+    <input type="date" name="created_date" value="{{ $task->created_date?->format('Y-m-d') }}" class="form-control">
+</div>
 
                     <div class="col-12 text-end mt-3">
                         <button type="submit" class="btn btn-primary">Save Task</button>
@@ -81,59 +99,6 @@
 
         </div>
     </div>
-
-    <!-- ================= COMMENTS ================= -->
-
-    <div class="card shadow-sm mt-4">
-        <div class="card-body">
-            <h4>Task Discussion</h4>
-
-            <!-- ✅ COMMENT FORM -->
-            <form id="commentForm" method="POST"
-                  action="{{ route('tasks.comments.store', $task) }}"
-                  enctype="multipart/form-data">
-                @csrf
-
-                <textarea name="comment" rows="3" class="form-control mb-2"
-                          placeholder="Write comment..." required></textarea>
-
-                <input type="file" name="file" class="form-control mb-2">
-
-                <!-- 🎙️ Recording -->
-                <button type="button" id="recordBtn" class="btn btn-outline-danger mb-2">
-                    🎙️ Start Recording
-                </button>
-
-                <audio id="preview" controls class="w-100 d-none mb-2"></audio>
-
-                <!-- ✅ SUBMIT BUTTON (FIXED) -->
-                <button type="submit" class="btn btn-primary" id="submitComment">
-                    Save Comment
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Existing Comments -->
-    @foreach($task->comments as $comment)
-        <div class="border p-2 mt-2">
-            <strong>{{ $comment->user->name }}</strong>
-            <small>{{ $comment->created_at->diffForHumans() }}</small>
-
-            <p>{{ $comment->comment }}</p>
-
-            @if($comment->file_path)
-                <a href="{{ asset('storage/'.$comment->file_path) }}" target="_blank">📎 File</a>
-            @endif
-
-            @if($comment->audio_path)
-                <audio controls>
-                    <source src="{{ asset('storage/'.$comment->audio_path) }}">
-                </audio>
-            @endif
-        </div>
-    @endforeach
-
 </div>
 
 <!-- ================= JS FIXES ================= -->
