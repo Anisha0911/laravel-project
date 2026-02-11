@@ -69,7 +69,9 @@ return redirect()->route('admin.users.index')
 public function destroy(User $user)
 {
     $user->delete();
-    return back()->with('success', 'User Deleted Successfully!');
+    return redirect()
+        ->route('admin.users.index')
+        ->with('success', 'User Deleted Successfully!');
 }
 
 

@@ -44,13 +44,16 @@
                                     <i class="bi bi-pencil-fill"></i>
                                 </a>
 
-                                <form method="POST" action="/admin/users/{{ $user->id }}" style="display:inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this user?')">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                </form>
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger my-1"
+                                data-bs-toggle="modal"
+                                data-bs-target="#globalDeleteModal"
+                                data-action="{{ route('admin.users.destroy', $user->id) }}">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+
+                  
                             </td>
                         </tr>
 

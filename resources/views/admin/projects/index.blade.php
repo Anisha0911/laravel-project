@@ -28,7 +28,7 @@
                 @forelse($projects as $project)
                     <tr>
                         <td class="fw-medium">{{ $project->name }}</td>
-<td class="fw-medium">{{ $project->description }}</td>
+                        <td class="fw-medium">{{ $project->description }}</td>
                         <!-- Assigned User -->
                         <td>
                             {{ $project->user->name ?? '—' }}
@@ -46,28 +46,24 @@
                         <!-- Actions -->
                         <td class="text-center">
                             <a href="{{ route('admin.projects.edit', $project->id) }}"
-                               class="btn btn-sm btn-outline-warning me-1">
+                               class="btn btn-sm btn-outline-warning my-1">
                                 <i class="bi bi-pencil-fill"></i>
                             </a>
 
-
-                            
-<button type="button"
-        class="btn btn-sm btn-outline-danger"
-        data-bs-toggle="modal"
-        data-bs-target="#globalDeleteModal"
-        data-action="{{ route('admin.projects.destroy', $project->id) }}">
-    <i class="bi bi-trash-fill"></i>
-</button>
-
+                        <!-- Delete Modal Reuseable Component -->
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#globalDeleteModal"
+                                data-action="{{ route('admin.projects.destroy', $project->id) }}">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
 
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-center text-muted py-3">
-                            No projects found.
-                        </td>
+                        <td colspan="4" class="text-center text-muted py-3">No projects found.</td>
                     </tr>
                 @endforelse
                 </tbody>
@@ -75,10 +71,6 @@
         </div>
     </div>
 </div>
-
-
 </div>
 
-<!-- Bootstrap Icons (required for pencil/trash/add icons) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 @endsection

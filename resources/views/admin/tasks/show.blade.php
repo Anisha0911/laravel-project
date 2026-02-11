@@ -16,7 +16,6 @@
             <h4>{{ $task->title }}</h4>
             <p><strong>Project:</strong> {{ $task->project->name }}</p>
             <p><strong>Assigned To:</strong> {{ $task->user->name }}</p>
-            <!-- <p><strong>Status:</strong> {{ ucfirst($task->status) }}</p> -->
              @php
     // Status Colors
     $statusColors = [

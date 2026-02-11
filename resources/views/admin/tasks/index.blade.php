@@ -42,17 +42,17 @@
                     <!-- Actions -->
                     <td class="text-center">
                         <a href="{{ route('admin.tasks.edit', $task->id) }}"
-                            class="btn btn-sm btn-outline-warning me-1">
+                            class="btn btn-sm btn-outline-warning my-1">
                             <i class="bi bi-pencil-fill"></i>
                         </a>
 
                         <a href="{{ route('admin.tasks.show', $task->id) }}"
-                            class="btn btn-sm btn-outline-primary me-1">
+                            class="btn btn-sm btn-outline-primary my-1">
                             <i class="bi bi-eye-slash-fill"></i>
                         </a>
 
                         <button type="button"
-                                class="btn btn-sm btn-outline-danger"
+                                class="btn btn-sm btn-outline-danger my-1"
                                 data-bs-toggle="modal"
                                 data-bs-target="#globalDeleteModal"
                                 data-action="{{ route('admin.tasks.destroy', $task->id) }}">
