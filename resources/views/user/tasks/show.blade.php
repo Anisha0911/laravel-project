@@ -1,11 +1,16 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="container mt-5">
-    <!-- Page Header -->
+<div class="container-fluid mt-4">
+
+    <!-- ================= HEADER ================= -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
-        <h2 class="fw-bold mb-3 mb-md-0">Task Details</h2>
-        <a href="{{ route('user.tasks.index') }}" class="btn btn-outline-secondary">
+        <div>
+            <h2 class="fw-bold mb-1">Task Details</h2>
+            <p class="text-muted small mb-0">View task information and updates</p>
+        </div>
+
+        <a href="{{ route('user.tasks.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
             <i class="bi bi-arrow-left"></i> Back to Tasks
         </a>
     </div>
@@ -32,17 +37,20 @@
     $priorityColor = $priorityMap[$task->priority][0] ?? 'secondary';
     $priorityIcon  = $priorityMap[$task->priority][1] ?? 'bi-dash';
 @endphp
-<!-- Task Details Card -->
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <!-- {{-- Title --}} -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-3">
-            <h4 class="fw-bold mb-2 mb-md-0">{{ $task->title }}</h4>
 
-            <!-- {{-- Status --}} -->
-            <div>
-               <strong>Status: </strong> <span id="statusView">
-                    <span class="badge bg-{{ $statusColor }} px-3 py-2">
+<!-- ================= TASK DETAILS CARD ================= -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+
+        <!-- Title + Status -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-3 gap-2">
+            <h4 class="fw-bold text-dark">{{ $task->title }}</h4>
+
+            <div class="d-flex align-items-center gap-2">
+                <strong class="small">Status:</strong>
+
+                <span id="statusView">
+                    <span class="badge bg-{{ $statusColor }} px-3 py-2 rounded-pill">
                         <i class="bi {{ $statusIcon }}"></i>
                         {{ ucfirst(str_replace('_',' ', $task->status)) }}
                     </span>
@@ -54,15 +62,14 @@
             </div>
         </div>
 
-        <!-- {{-- Status Edit Form (hidden) --}} -->
+        <!-- Status Edit -->
         <form id="statusEditForm"
               method="POST"
               action="{{ route('user.user.tasks.show', $task->id) }}"
               class="d-none mb-3">
             @csrf
-
             <div class="d-flex flex-wrap gap-2 align-items-center">
-                <select name="status" class="form-select form-select-sm w-auto">
+                <select name="status" class="form-select form-select-sm w-auto rounded-pill">
                     @foreach(['pending','in_progress','review','hold','completed'] as $s)
                         <option value="{{ $s }}" {{ $task->status === $s ? 'selected' : '' }}>
                             {{ ucfirst(str_replace('_',' ', $s)) }}
@@ -70,56 +77,51 @@
                     @endforeach
                 </select>
 
-                <button class="btn btn-sm btn-success">Save</button>
-                <button type="button"
-                        class="btn btn-sm btn-outline-secondary"
+                <button class="btn btn-sm btn-success rounded-pill px-3">Save</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3"
                         onclick="toggleStatusEdit()">
                     Cancel
                 </button>
             </div>
         </form>
 
-        <hr>
+        <hr class="my-4">
 
-        {{-- Info Grid --}}
-        <div class="row g-3">
-            <div class="col-12 col-md-6">
+        <!-- INFO GRID -->
+        <div class="row g-4">
+            <div class="col-md-6">
                 <div class="small text-muted">Project</div>
-                <div class="fw-semibold">{{ $task->project->name ?? '—' }}</div>
+                <div class="fw-semibold fs-6">{{ $task->project->name ?? '—' }}</div>
             </div>
 
-            <div class="col-12 col-md-6">
+            <div class="col-md-6">
                 <div class="small text-muted">Assigned To</div>
-                <div class="fw-semibold">{{ $task->user->name }}</div>
+                <div class="fw-semibold fs-6">{{ $task->user->name }}</div>
             </div>
 
-            <div class="col-12 col-md-6">
+            <div class="col-md-6">
                 <div class="small text-muted">Created At</div>
-                <div class="fw-semibold">
-                    {{ $task->created_at?->format('d M Y') ?? 'N/A' }}
-                </div>
+                <div class="fw-semibold fs-6">{{ $task->created_at?->format('d M Y') ?? 'N/A' }}</div>
             </div>
 
-            <div class="col-12 col-md-6">
+            <div class="col-md-6">
                 <div class="small text-muted">Due Date</div>
-                <div class="fw-semibold">
-                    {{ $task->due_date?->format('d M Y') ?? 'N/A' }}
-                </div>
+                <div class="fw-semibold fs-6">{{ $task->due_date?->format('d M Y') ?? 'N/A' }}</div>
             </div>
 
-            <div class="col-12 col-md-6">
+            <div class="col-md-6">
                 <div class="small text-muted">Priority</div>
-                <span class="badge bg-{{ $priorityColor }}">
+                <span class="badge bg-{{ $priorityColor }} px-3 py-2 rounded-pill">
                     <i class="bi {{ $priorityIcon }}"></i>
                     {{ ucfirst($task->priority) }}
                 </span>
             </div>
         </div>
 
-        {{-- Description --}}
+        <!-- DESCRIPTION -->
         <div class="mt-4">
             <div class="small text-muted mb-1">Description</div>
-            <div class="p-3 bg-light rounded">
+            <div class="p-3 bg-light rounded-3">
                 {{ $task->description ?? 'No description provided.' }}
             </div>
         </div>
@@ -127,54 +129,78 @@
     </div>
 </div>
 
-    <!-- Task Comments Section -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h4> <i class="bi bi-list-check fs-0 text-success"></i> Task Updates</h4>
+<!-- ================= COMMENTS CARD ================= -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+        <h5 class="fw-bold mb-3">
+            <i class="bi bi-chat-dots text-primary"></i> Task Updates
+        </h5>
 
-            <form method="POST" action="{{ route('tasks.comments.store', $task) }}" enctype="multipart/form-data">
-                @csrf
-                <div class="row g-3">
-                    <div class="col-12">
-                        <textarea name="comment" rows="3" class="form-control" placeholder="Write a comment..." required></textarea>
-                    </div>
-                    <div class="col-12 col-md-3">
-                        <input type="file" name="file" class="form-control">
-                    </div>
-                    <div class="col-12 col-md-3">
-                        <input type="file" name="audio" accept="audio/*" class="form-control">
-                    </div>
-                    <div class="col-12 col-md-3">
-                        <button type="submit" class="btn btn-primary">Add Comment</button>
-                    </div>
+        <form method="POST" action="{{ route('tasks.comments.store', $task) }}" enctype="multipart/form-data">
+            @csrf
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <textarea name="comment" rows="3" class="form-control rounded-3" placeholder="Write a comment..." required></textarea>
                 </div>
-            </form>
-        </div>
+
+                <div class="col-md-2">
+                    <input type="file" name="file" class="form-control form-control-sm rounded-pill">
+                </div>
+
+                <div class="col-md-2">
+                    <input type="file" name="audio" accept="audio/*" class="form-control form-control-sm rounded-pill">
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 w-100">
+                        <i class="bi bi-send"></i> Add Comment
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
-
-   
-    
-    <!-- Display Comments -->
-    @foreach($task->comments as $comment)
-    <div class="card mb-2">
-        <div class="card-body">
-            <strong>{{ $comment->user->name }}</strong>
-            <small>({{ $comment->created_at->diffForHumans() }})</small>
-            <p>{{ $comment->comment }}</p>
-
-            @if($comment->file_path)
-                <a href="{{ asset('storage/'.$comment->file_path) }}" target="_blank">📎 Download File</a>
-            @endif
-
-            @if($comment->audio_path)
-                <audio controls>
-                    <source src="{{ asset('storage/'.$comment->audio_path) }}">
-                </audio>
-            @endif
-        </div>
-    </div>
-    @endforeach
 </div>
+
+<!-- ================= COMMENTS LIST ================= -->
+@foreach($task->comments as $comment)
+<div class="card border-0 shadow-sm rounded-4 mb-2">
+    <div class="card-body p-3">
+        <div class="d-flex justify-content-between">
+            <strong>{{ $comment->user->name }}</strong>
+            <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+        </div>
+
+        <p class="mb-2 mt-2">{{ $comment->comment }}</p>
+
+        @if($comment->file_path)
+            <a href="{{ asset('storage/'.$comment->file_path) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill">
+                📎 Download File
+            </a>
+        @endif
+
+        @if($comment->audio_path)
+            <audio controls class="w-100 mt-2 rounded">
+                <source src="{{ asset('storage/'.$comment->audio_path) }}">
+            </audio>
+        @endif
+    </div>
+</div>
+@endforeach
+
+</div>
+
+<!-- UI Hover Effects -->
+<style>
+    .card {
+        transition: 0.25s ease-in-out;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+</style>
+
 <script>
 function toggleStatusEdit() {
     document.getElementById('statusView').classList.toggle('d-none');
@@ -182,5 +208,3 @@ function toggleStatusEdit() {
 }
 </script>
 @endsection
-
-

@@ -10,21 +10,59 @@ use Illuminate\Support\Facades\Auth;
 
 class UserProjectController extends Controller
 {
-    public function index()
-    {  // Only projects which have tasks assigned to this user
-        // Get projects that have at least one task assigned to the logged-in user
-        // Also eager-load only tasks assigned to this user
-        $projects = Project::whereHas('tasks', function ($q) {
+    public function index(Request $request)
+    {
+        // Start query: only projects that have tasks assigned to this user
+        $query = Project::whereHas('tasks', function ($q) {
             $q->where('user_id', Auth::id());
         })
         ->with(['tasks' => function($q) {
             $q->where('user_id', Auth::id());
-        }])
-        ->get();
+        }]);
+
+        // -----------------------------
+        // SEARCH
+        // -----------------------------
+        if ($request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // -----------------------------
+        // STATUS FILTER
+        // -----------------------------
+   if ($request->status) {
+    if ($request->status === 'active') {
+        // Projects that have at least one task not completed
+        $query->whereHas('tasks', function($q) {
+            $q->where('user_id', Auth::id())
+              ->where('status', '!=', 'completed');
+        });
+    } elseif ($request->status === 'completed') {
+
+    $query->whereHas('tasks', function ($q) {
+        $q->where('user_id', Auth::id());
+    });
+
+    $query->whereDoesntHave('tasks', function ($q) {
+        $q->where('user_id', Auth::id())
+          ->where('status', '!=', 'completed');
+    });
+}
+
+}
+
+
+        // -----------------------------
+        // PAGINATION
+        // -----------------------------
+        $projects = $query->latest()->paginate(10)->withQueryString();
 
         return view('user.projects.index', compact('projects'));
     }
-
       
     public function tasks(Project $project)
     {

@@ -5,48 +5,66 @@
         : route('user.profile.destroy');
 @endphp
 
-<section class="space-y-6">
-    <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('Delete Account') }}
-        </h2>
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
+<div class="card border-0 shadow-sm rounded-4 mt-4 border-danger">
+
+    <div class="card-header bg-white border-0 pb-0">
+        <h5 class="fw-bold text-danger mb-1">Delete Account</h5>
+        <p class="text-muted small mb-0">
+            Once your account is deleted, all data will be permanently removed. This action cannot be undone.
         </p>
-    </header>
+    </div>
 
-    <x-danger-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')">
-        {{ __('Delete Account') }}
-    </x-danger-button>
+    <div class="card-body">
 
-    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <form method="post" action="{{ $profileDestroyRoute }}" class="p-6">
-            @csrf
-            @method('delete')
+        <!-- Delete Button -->
+        <button class="btn btn-outline-danger rounded-pill px-4 py-2"
+                x-data
+                x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')">
+            <i class="bi bi-trash me-1"></i> Delete My Account
+        </button>
 
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                {{ __('Are you sure you want to delete your account?') }}
-            </h2>
+        <!-- Confirm Delete Modal -->
+        <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
+            <form method="POST" action="{{ $profileDestroyRoute }}" class="p-4">
+                @csrf
+                @method('DELETE')
 
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
-            </p>
+                <h5 class="fw-bold text-danger mb-2">
+                    Are you sure you want to delete your account?
+                </h5>
 
-            <div class="mt-6">
-                <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
-                <x-text-input id="password" name="password" type="password" class="mt-1 block w-3/4"
-                    placeholder="{{ __('Password') }}" />
-                <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
-            </div>
+                <p class="text-muted small mb-3">
+                    This action is permanent. Enter your password to confirm deletion.
+                </p>
 
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
-                    {{ __('Cancel') }}
-                </x-secondary-button>
-                <x-danger-button class="ms-3">
-                    {{ __('Delete Account') }}
-                </x-danger-button>
-            </div>
-        </form>
-    </x-modal>
-</section>
+                <!-- Password -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Password</label>
+                    <input type="password"
+                           name="password"
+                           class="form-control form-control-lg"
+                           placeholder="Enter your password">
+
+                    @error('password')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button"
+                            class="btn btn-light px-4 rounded-pill"
+                            x-on:click="$dispatch('close')">
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="btn btn-danger px-4 rounded-pill">
+                        <i class="bi bi-trash me-1"></i> Delete Account
+                    </button>
+                </div>
+
+            </form>
+        </x-modal>
+
+    </div>
+</div>

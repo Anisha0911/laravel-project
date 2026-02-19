@@ -1,51 +1,44 @@
-<aside class="d-flex flex-column bg-white" style="height: -webkit-fill-available;">
+<div class="d-flex flex-column h-100">
 
-    <!-- Top Header -->
-    <div class="p-4 border-bottom">
-        <h6 class="fw-bold mb-0">Admin Management</h6>
+    <div class="sidebar-header">
+        <span>Admin Panel</span>
     </div>
 
-    <!-- Navigation Links -->
-    <ul class="nav flex-column p-3 gap-1 flex-grow-1">
+    <ul class="nav flex-column p-2 flex-grow-1">
+
         <li class="nav-item">
-            <a href="{{ route('admin.dashboard') }}"
-               class="nav-link {{ request()->is('admin/dashboard') ? 'active bg-primary text-white rounded' : 'text-dark' }}">
-                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->is('admin/dashboard') ? 'active' : '' }}">
+                <i class="bi bi-speedometer2"></i>
+                <span> Dashboard</span>
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('admin.projects.index') }}"
-            class="nav-link {{ request()->is('admin/projects*') ? 'active bg-primary text-white rounded' : 'text-dark' }}">
-                <i class="bi bi-kanban me-2"></i> Projects
+            <a href="{{ route('admin.projects.index') }}" class="nav-link {{ request()->is('admin/projects*') ? 'active' : '' }}">
+                <i class="bi bi-kanban"></i>
+                <span> Projects</span>
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('admin.tasks.index') }}"
-            class="nav-link {{ request()->is('admin/task*') ? 'active bg-primary text-white rounded' : 'text-dark' }}">
-                <i class="bi bi-list-task me-2"></i> Task
+            <a href="{{ route('admin.tasks.index') }}" class="nav-link {{ request()->is('admin/tasks*') ? 'active' : '' }}">
+                <i class="bi bi-list-task"></i>
+                <span> Tasks</span>
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('admin.users.index') }}"
-               class="nav-link {{ request()->is('admin/users*') ? 'active bg-primary text-white rounded' : 'text-dark' }}">
-                <i class="bi bi-people me-2"></i> Users
+            <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}">
+                <i class="bi bi-people"></i>
+                <span> Users</span>
             </a>
         </li>
 
-        <li class="nav-item">
-            <a href="#"
-               class="nav-link text-dark">
-                <i class="bi bi-gear me-2"></i> Settings
-            </a>
-        </li>
+    </ul>
 
-    <!-- Footer / Sticky Bottom -->
-    <div class="p-3 border-top text-left mt-auto">
-        <small class="text-muted d-block">Logged in as</small>
-        <div class="fw-semibold">{{ auth()->user()->name }}</div>
+    <div class="sidebar-footer">
+        <small>Logged in as</small><br>
+        <strong>{{ auth()->user()->name }}</strong>
     </div>
 
-</aside>
+</div>

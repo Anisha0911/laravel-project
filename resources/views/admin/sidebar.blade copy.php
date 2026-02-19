@@ -44,8 +44,8 @@
     </ul>
 
     <!-- Footer -->
-    <div class="p-3 border-top mt-auto">
-        <small class="text-muted">Logged in as</small>
+    <div class="px-3 border-top mt-auto">
+        <small class="text-muted px-3">Logged in as</small>
         <div class="fw-semibold">{{ auth()->user()->name }}</div>
     </div>
 

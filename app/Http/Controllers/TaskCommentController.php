@@ -39,32 +39,42 @@ class TaskCommentController extends Controller
         // Notify opposite role
         $task = $task;
 
-// 🔔 Notify assigned user or admin(s)
-if (Auth::user()->role === 'admin') {
-    // Admin commented → notify assigned user
-    if ($task->user_id && $task->user_id !== Auth::id()) {
-        $recipient = User::find($task->user_id);
-        if ($recipient) {
-            $recipient->notify(new TaskNotification(
-                Auth::user()->name . ' commented on a task',
-                $task->id
-            ));
-        }
-    }
-} else {
-    // User commented → notify all admins (except commenter)
-    $admins = User::where('role', 'admin')
-                  ->where('id', '!=', Auth::id())
-                  ->get();
+        // 🔔 Notify assigned user or admin(s)
+        if (Auth::user()->role === 'admin') {
+            // Admin commented → notify assigned user
+            if ($task->user_id && $task->user_id !== Auth::id()) {
+                $recipient = User::find($task->user_id);
+                if ($recipient) {
+                    $recipient->notify(new TaskNotification(
+                        Auth::user()->name . ' commented on a task',
+                        $task->id
+                    ));
+                }
+            }
+        } else {
+            // User commented → notify all admins (except commenter)
+            $admins = User::where('role', 'admin')
+                        ->where('id', '!=', Auth::id())
+                        ->get();
 
-    foreach ($admins as $admin) {
-        $admin->notify(new TaskNotification(
-            Auth::user()->name . ' commented on a task',
-            $task->id
-        ));
-    }
-}
+            foreach ($admins as $admin) {
+                $admin->notify(new TaskNotification(
+                    Auth::user()->name . ' commented on a task',
+                    $task->id
+                ));
+            }
+        }
         return back();
     }
+
+    public function update(Request $request)
+    {
+        $comment = TaskComment::find($request->id);
+        $comment->comment = $request->comment;
+        $comment->save();
+
+        return response()->json(['success'=>true]);
+    }
+
 }
 

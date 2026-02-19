@@ -10,12 +10,27 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-     // USERS LIST
-    public function index()
-    {
-     $users = User::latest()->get();
-    return view('admin.users.index', compact('users'));
+public function index(Request $request)
+{
+    // Start query
+    $query = User::query();
+
+    // Apply search if present
+    if ($request->has('search') && $request->search != '') {
+        $search = $request->search;
+
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('role', 'like', "%{$search}%");
+        });
     }
+
+    // Get filtered users
+    $users = $query->latest()->get();
+
+    return view('admin.users.index', compact('users'));
+}
 
 
     // CREATE USER

@@ -10,10 +10,39 @@ use App\Models\User;
 use App\Notifications\TaskNotification;
 
 class TaskController extends Controller
-{
-    public function index()
+{   
+    // List Tasks
+    public function index(Request $request)
     {
-        $tasks = Task::with(['project', 'user'])->latest()->get();
+        // Start query
+        $query = Task::with(['project', 'user']);
+        // Search by task name
+      
+         if ($request->search) {
+        $search = $request->search;
+
+        $query->where(function ($q) use ($search) {
+
+            // Search by Title
+            $q->where('title', 'like', "%{$search}%")
+
+              // Search by Status
+              ->orWhere('status', 'like', "%{$search}%")
+
+              // Search by Project name
+              ->orWhereHas('project', function ($q2) use ($search) {
+                  $q2->where('name', 'like', "%{$search}%");
+              })
+
+              // Search by Assigned User name
+              ->orWhereHas('user', function ($q3) use ($search) {
+                  $q3->where('name', 'like', "%{$search}%");
+              });
+        });
+         }
+
+        // Get results
+        $tasks = $query->latest()->get(); 
         return view('admin.tasks.index', compact('tasks'));
     }
 
@@ -63,8 +92,7 @@ class TaskController extends Controller
     }
 
     public function update(Request $request, Task $task)
-    {
-        $request->validate([
+    {       $request->validate([
             'title' => 'required',
             'project_id' => 'required|exists:projects,id',
             'user_id' => 'required|exists:users,id',
@@ -72,6 +100,7 @@ class TaskController extends Controller
             'due_date' => 'nullable|date',
             'priority' => 'nullable',
             'created_date' => 'nullable|date',
+                'status' => 'required|in:pending,in_progress,completed',
         ]);
 
         // 🔹 Check if assigned user changed
@@ -102,6 +131,7 @@ class TaskController extends Controller
         return redirect()->route('admin.tasks.index')
             ->with('success', 'Task Updated Successfully!');
     }
+    
 
     public function destroy(Task $task)
     {
@@ -118,4 +148,21 @@ class TaskController extends Controller
 
         return view('admin.tasks.show', compact('task'));
     }
+
+
+public function updateStatus(Request $request, Task $task)
+{
+   
+
+    $request->validate([
+        'status' => 'required|in:pending,in_progress,review,hold,completed'
+    ]);
+
+    $task->update([
+        'status' => $request->status
+    ]);
+
+    return back();
+}
+
 }

@@ -21,6 +21,11 @@ class DashboardController extends Controller
         // Total projects count for card
         $projectsCount = $myProjects->count();
 
+//fetching tasks for logged-in user
+// $tasks = Task::where('user_id', auth()->id())->get();
+// Fetch all tasks
+$tasks_status = Task::all(); // ✅ returns a collection of Task objects
+
         // Total tasks assigned to user
         $tasksCount = Task::where('user_id', $user->id)->count();
 
@@ -36,8 +41,19 @@ class DashboardController extends Controller
             'tasks' => $tasksCount,
             'completedTasks' => $completedTasksCount,
             'myProjects' => $myProjects, // <--- Added this
-        ]);
+            'tasks_status' => $tasks_status,
+             ]);
     }
+
+        public function updateStatus(Request $request, Task $task)
+    {
+        abort_if($task->user_id !== auth()->id(), 403);
+        $task->update([
+            'status' => $request->status
+        ]);
+        return back();
+    }
+
 
     
 }

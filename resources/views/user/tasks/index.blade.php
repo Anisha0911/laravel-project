@@ -1,133 +1,134 @@
 @extends('layouts.admin')
 
 <style>
-/* Filter bar */
-.filter-wrapper {
-    overflow: hidden;
-}
-.filter-scroll {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    padding-bottom: 5px;
-}
-.filter-scroll::-webkit-scrollbar {
-    height: 4px;
-}
-.filter-scroll::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 10px;
-}
+/* ================= FILTER BAR ================= */
+.filter-wrapper { overflow: hidden; }
+.filter-scroll { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; }
+.filter-scroll::-webkit-scrollbar { height: 5px; }
+.filter-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
 
-/* Filter box */
+/* Filter Cards */
 .filter-box {
-    min-width: 120px;
+    min-width: 130px;
     background: #fff;
-    border: 1px solid #eee;
-    border-radius: 10px;
-    padding: 10px 14px;
+    border: 1px solid #f0f0f0;
+    border-radius: 14px;
+    padding: 2px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 13px;
     white-space: nowrap;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: 0.25s ease;
 }
-.filter-box strong {
-    font-size: 16px;
-}
-.filter-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-}
-
-/* Date filter */
-.date-filter {
-    min-width: 170px;
-    gap: 6px;
-}
-.date-filter input {
-    border: none;
-    padding: 0;
-    font-size: 13px;
-}
-
+.filter-box strong { font-size: 18px; font-weight: 700; }
+.filter-box:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
 .filter-box.active {
-    background: #0d6efd;
+    background: linear-gradient(135deg,#0d6efd,#6610f2);
     color: #fff !important;
-    border-color: #0d6efd;
+    border-color: transparent;
 }
 .filter-box.active strong,
-.filter-box.active span {
+.filter-box.active span { color: #fff; }
+
+/* Table UI */
+.table-hover tbody tr:hover { background: #f9fbff; }
+.sticky-header thead th {
+    position: sticky;
+    top: 0;
+    background: #212529;
+    z-index: 5;
     color: #fff;
 }
+
+/* Highlight pinned tasks */
+.tr-pinned { border-left: 5px solid #ffc107 !important; background: #fffdf3; }
+
+/* Cards Hover */
+.card { border-radius: 16px; transition: .25s ease; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,.07); }
+
+/* Status badge bigger */
+.badge { padding: 6px 12px; font-size: 12px; border-radius: 20px; }
+
+/* Action Button */
+.btn-view { border-radius: 20px; padding: 4px 14px; font-size: 13px; }
 </style>
 
 @section('content')
-<div class="container mt-5">
+<div class="container-fluid mt-4">
 
-    <!-- Header -->
+    <!-- ================= HEADER ================= -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
-        <h2 class="fw-bold mb-3 mb-md-0">All Tasks</h2>
+        <div>
+            <h2 class="fw-bold mb-1">My Tasks</h2>
+            <p class="text-muted small mb-0">Manage all tasks assigned to you</p>
+        </div>
+
+        <!-- Search -->
+        <form method="GET" action="{{ route('user.tasks.index') }}" class="w-auto">
+            <div class="input-group input-group-sm shadow-sm rounded-pill overflow-hidden">
+                <span class="input-group-text bg-white border-0 ps-3">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text"
+                       name="search"
+                       value="{{ request('search') }}"
+                       class="form-control border-0 shadow-none"
+                       placeholder="Search tasks...">
+            </div>
+        </form>      
     </div>
 
-    <!-- Filters -->
+    <!-- ================= FILTER CARDS ================= -->
     <div class="filter-wrapper mb-4">
         <div class="filter-scroll">
-            
-<div class="filter-box text-info" data-filter="all">
-    <span>All</span>
-    <strong>{{ $tasks->count() }}</strong>
-</div>
+            <div class="filter-box active" data-filter="all"><span>All Tasks</span><strong>{{ $tasks->count() }}</strong></div>
+            <div class="filter-box text-success" data-filter="completed"><span>Completed</span><strong>{{ $completedCount }}</strong></div>
+            <div class="filter-box text-primary" data-filter="in_progress"><span>In Progress</span><strong>{{ $inProgressCount }}</strong></div>
+            <div class="filter-box text-dark" data-filter="hold"><span>On Hold</span><strong>{{ $holdCount }}</strong></div>
+            <div class="filter-box text-secondary" data-filter="pending"><span>Pending</span><strong>{{ $pendingCount }}</strong></div>
+            <div class="filter-box text-warning" data-filter="review"><span>Review</span><strong>{{ $reviewCount ?? 0 }}</strong></div>
+            <div class="filter-box text-danger" data-filter="overdue"><span>Overdue</span><strong>{{ $overdueCount ?? 0 }}</strong></div>
+            <div class="filter-box text-danger" data-filter="high_priority"><span>High Priority</span><strong>{{ $highPriorityCount ?? 0 }}</strong></div>
 
-            <div class="filter-box text-success" data-filter="completed">
-                <span>Completed</span>
-                <strong>{{ $completedCount }}</strong>
-            </div>
-
-            <div class="filter-box text-primary" data-filter="in_progress">
-                <span>In Progress</span>
-                <strong>{{ $inProgressCount }}</strong>
-            </div>
-
-            <div class="filter-box text-dark" data-filter="hold">
-                <span>On Hold</span>
-                <strong>{{ $holdCount }}</strong>
-            </div>
-
-            <div class="filter-box text-secondary" data-filter="pending">
-                <span>Pending</span>
-                <strong>{{ $pendingCount }}</strong>
-            </div>
-
-            <div class="filter-box text-success" data-filter="in_time">
-                <span>In Time</span>
-                <strong>{{ $inTimeCount }}</strong>
-            </div>
-
-            <div class="filter-box text-danger" data-filter="delayed">
-                <span>Delayed</span>
-                <strong>{{ $delayedCount }}</strong>
-            </div>
-
-            <!-- Date Filter -->
+            <!-- Date Picker -->
             <div class="filter-box date-filter">
                 <i class="bi bi-calendar-event"></i>
-                <input type="date" id="dateFilter" class="form-control form-control-sm">
+                <input type="date" id="dateFilter" class="form-control form-control-sm border-0">
             </div>
 
+            <!-- Reset Filters -->
+            <div class="filter-box text-danger" id="clearFilters">Reset</div>
         </div>
     </div>
 
-    <!-- Table Card -->
-    <div class="card shadow-sm">
+    <!-- ================= BULK ACTIONS ================= -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+            <input type="checkbox" id="selectAll" class="form-check-input me-2">
+            <label for="selectAll" class="form-check-label fw-semibold">Select All</label>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-success rounded-pill px-3" id="bulkComplete">
+                <i class="bi bi-check-circle"></i> Complete
+            </button>
+            <button class="btn btn-sm btn-danger rounded-pill px-3" id="bulkDelete">
+                <i class="bi bi-trash"></i> Delete
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= TASK TABLE ================= -->
+    <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-dark">
+                <table class="table table-hover align-middle mb-0 sticky-header">
+                    <thead>
                         <tr>
+                            <th><input type="checkbox" id="headerCheckbox"></th>
                             <th>Task</th>
                             <th>Created</th>
                             <th>Status</th>
@@ -136,71 +137,13 @@
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
-
                     <tbody id="taskTableBody">
-                        @forelse($tasks as $task)
-                            @php
-                                $statusMap = [
-                                    'pending' => ['secondary', 'bi-clock'],
-                                    'in_progress' => ['primary', 'bi-arrow-repeat'],
-                                    'review' => ['warning', 'bi-eye'],
-                                    'hold' => ['dark', 'bi-pause-circle'],
-                                    'completed' => ['success', 'bi-check-circle'],
-                                ];
-
-                                $priorityMap = [
-                                    'low' => ['success', 'bi-arrow-down'],
-                                    'medium' => ['warning', 'bi-dash-circle'],
-                                    'high' => ['danger', 'bi-arrow-up'],
-                                    'urgent' => ['dark', 'bi-exclamation-triangle'],
-                                ];
-
-                                $statusColor = $statusMap[$task->status][0] ?? 'secondary';
-                                $statusIcon  = $statusMap[$task->status][1] ?? 'bi-question-circle';
-
-                                $priorityColor = $priorityMap[$task->priority][0] ?? 'secondary';
-                                $priorityIcon  = $priorityMap[$task->priority][1] ?? 'bi-dash';
-                            @endphp
-
-                            <tr>
-                                <td class="fw-semibold">
-                                    {{ $task->title }}
-                                    <div class="small text-muted">{{ $task->project->name ?? '' }}</div>
-                                </td>
-                                <td class="text-muted">
-                                    {{ $task->created_date ?? $task->created_at->format('d M Y') }}
-                                </td>
-                                <td>
-                                    <span class="badge bg-{{ $statusColor }}">
-                                        <i class="bi {{ $statusIcon }}"></i>
-                                        {{ ucfirst(str_replace('_',' ',$task->status)) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-{{ $priorityColor }}">
-                                        <i class="bi {{ $priorityIcon }}"></i>
-                                        {{ ucfirst($task->priority) }}
-                                    </span>
-                                </td>
-                                <td class="text-muted">
-                                    {{ $task->due_date ? $task->due_date->format('d M Y') : 'N/A' }}
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ route('user.tasks.show', $task) }}" class="btn btn-sm btn-primary">View</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center text-muted py-4">No tasks assigned.</td>
-                            </tr>
-                        @endforelse
+                        @include('user.tasks.partials.task_rows', ['tasks' => $tasks])
                     </tbody>
-
                 </table>
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -208,43 +151,86 @@ document.addEventListener('DOMContentLoaded', function () {
     const filters = document.querySelectorAll('.filter-box[data-filter]');
     const tableBody = document.getElementById('taskTableBody');
     const dateInput = document.getElementById('dateFilter');
+    const selectAll = document.getElementById('selectAll');
+    const clearFilters = document.getElementById('clearFilters');
+    const searchInput = document.querySelector('input[name="search"]');
+    let debounceTimer;
 
-    function fetchFilteredTasks(status = '', date = '') {
-        const params = new URLSearchParams({status, date});
+    function fetchFilteredTasks(status = '', date = '', search = '') {
+        const params = new URLSearchParams({status, date, search});
         fetch(`{{ route('user.tasks.ajaxFilter') }}?${params}`)
             .then(res => res.json())
             .then(data => {
-                // Update table rows
                 tableBody.innerHTML = data.rows;
-
-                // Update counts
+                // Update filter counts
                 Object.entries(data.counts).forEach(([key, val]) => {
                     const el = document.querySelector(`.filter-box[data-filter="${key}"] strong`);
                     if(el) el.textContent = val;
                 });
-            })
-            .catch(err => console.error(err));
+            });
     }
 
-    // Status filter click
-filters.forEach(f => {
-    f.addEventListener('click', function() {
-        filters.forEach(box => box.classList.remove('active'));
-        this.classList.add('active');
-
-        const status = this.dataset.filter; // "all" or actual status
-        const date = dateInput.value || '';
-
-        // Treat "all" separately by sending 'all' to controller
-        fetchFilteredTasks(status, date);
+    // Filter click
+    filters.forEach(f => {
+        f.addEventListener('click', function () {
+            filters.forEach(box => box.classList.remove('active'));
+            this.classList.add('active');
+            fetchFilteredTasks(this.dataset.filter, dateInput.value || '', searchInput.value || '');
+        });
     });
-});
 
-    // Date filter change
+    // Date change
     dateInput.addEventListener('change', function() {
         const activeFilter = document.querySelector('.filter-box.active');
-        const status = activeFilter ? activeFilter.dataset.filter : '';
-        fetchFilteredTasks(status, this.value);
+        fetchFilteredTasks(activeFilter.dataset.filter || '', this.value, searchInput.value || '');
+    });
+
+    // Search input (debounced)
+    searchInput.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            const activeFilter = document.querySelector('.filter-box.active');
+            fetchFilteredTasks(activeFilter.dataset.filter || '', dateInput.value || '', this.value);
+        }, 300);
+    });
+
+    // Clear filters
+    clearFilters.addEventListener('click', function() {
+        filters.forEach(box => box.classList.remove('active'));
+        document.querySelector('.filter-box[data-filter="all"]').classList.add('active');
+        searchInput.value = '';
+        dateInput.value = '';
+        fetchFilteredTasks('all', '', '');
+    });
+
+    // Bulk actions
+    selectAll.addEventListener('change', function() {
+        document.querySelectorAll('.task-checkbox').forEach(cb => cb.checked = selectAll.checked);
+    });
+
+    function getSelectedTaskIds() {
+        return Array.from(document.querySelectorAll('.task-checkbox:checked')).map(cb => cb.value);
+    }
+
+    document.getElementById('bulkComplete').addEventListener('click', function() {
+        const ids = getSelectedTaskIds();
+        if(ids.length === 0) return alert('Select tasks first.');
+        fetch('{{ route("user.tasks.bulkComplete") }}', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
+            body: JSON.stringify({ids})
+        }).then(()=> location.reload());
+    });
+
+    document.getElementById('bulkDelete').addEventListener('click', function() {
+        const ids = getSelectedTaskIds();
+        if(ids.length === 0) return alert('Select tasks first.');
+        if(!confirm('Are you sure to delete selected tasks?')) return;
+        fetch('{{ route("user.tasks.bulkDelete") }}', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
+            body: JSON.stringify({ids})
+        }).then(()=> location.reload());
     });
 });
 </script>

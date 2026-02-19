@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 05, 2026 at 03:22 PM
+-- Generation Time: Feb 11, 2026 at 08:52 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -62,7 +62,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (6, '2026_01_30_110735_create_projects_table', 3),
 (7, '2026_02_03_105708_create_tasks_table', 4),
 (8, '2026_02_04_131904_create_task_comments_table', 5),
-(9, '2026_02_05_113301_create_notifications_table', 6);
+(9, '2026_02_05_113301_create_notifications_table', 6),
+(10, '2026_02_09_133145_add_priority_and_created_date_to_tasks_table', 7);
 
 -- --------------------------------------------------------
 
@@ -86,10 +87,11 @@ CREATE TABLE `notifications` (
 --
 
 INSERT INTO `notifications` (`id`, `type`, `notifiable_type`, `notifiable_id`, `data`, `read_at`, `created_at`, `updated_at`) VALUES
-('24665de4-f8be-4bca-b6f5-eaed79f2f105', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 5, '{\"message\":\"Developer commented on a task\",\"task_id\":1}', '2026-02-05 07:36:25', '2026-02-05 07:36:17', '2026-02-05 07:36:25'),
-('733e802e-7bb9-468c-bc48-a4ec310714b9', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 10, '{\"message\":\"Anisha Prajapati commented on a task\",\"task_id\":1}', '2026-02-05 07:36:10', '2026-02-05 07:35:55', '2026-02-05 07:36:10'),
-('d26c27d3-3328-49fa-8fff-494dff877f7a', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 10, '{\"message\":\"Anisha Prajapati commented on a task\",\"task_id\":1}', '2026-02-05 07:01:06', '2026-02-05 07:00:20', '2026-02-05 07:01:06'),
-('fa6a604c-80b9-4040-9c27-bd73ebe7aee3', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 10, '{\"message\":\"Anisha Prajapati commented on a task\",\"task_id\":1}', '2026-02-05 07:27:08', '2026-02-05 07:26:57', '2026-02-05 07:27:08');
+('2d606774-8b4a-4b53-a54b-90fe11f8dd91', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 5, '{\"message\":\"Developer UI commented on a task\",\"task_id\":3}', NULL, '2026-02-11 02:07:04', '2026-02-11 02:07:04'),
+('358587ac-949c-4d66-b9a9-3ab076698771', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 5, '{\"message\":\"Developer UI commented on a task\",\"task_id\":10}', NULL, '2026-02-11 02:05:31', '2026-02-11 02:05:31'),
+('60386fef-11cb-49a9-a8b6-f8c7ed78b413', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 10, '{\"message\":\"A new task has been assigned to you\",\"task_id\":10}', '2026-02-11 02:05:26', '2026-02-11 02:05:18', '2026-02-11 02:05:26'),
+('7ead9740-3e6e-4d5b-ab6b-ad52ed6b14e6', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 8, '{\"message\":\"A task has been assigned to you\",\"task_id\":5}', NULL, '2026-02-06 06:06:56', '2026-02-06 06:06:56'),
+('d98a3496-65d5-4656-b8a8-7fc71df8ecd9', 'App\\Notifications\\TaskNotification', 'App\\Models\\User', 8, '{\"message\":\"A new task has been assigned to you\",\"task_id\":6}', NULL, '2026-02-06 04:06:49', '2026-02-06 04:06:49');
 
 -- --------------------------------------------------------
 
@@ -152,7 +154,8 @@ CREATE TABLE `projects` (
 
 INSERT INTO `projects` (`id`, `name`, `description`, `user_id`, `start_date`, `end_date`, `created_at`, `updated_at`) VALUES
 (6, 'project', 'To Dev', 10, '2026-02-02', '2026-02-26', '2026-02-03 03:19:47', '2026-02-05 03:36:48'),
-(7, 'RT', 'sxwdwdwed', 8, '2026-02-11', '2026-02-13', '2026-02-05 03:12:54', '2026-02-05 04:17:26');
+(7, 'RT', 'sxwdwdwed', 8, '2026-02-11', '2026-02-13', '2026-02-05 03:12:54', '2026-02-05 04:17:26'),
+(22, 'test project', 'test projectedferf', 10, NULL, '2026-02-19', '2026-02-11 02:04:43', '2026-02-11 02:04:49');
 
 -- --------------------------------------------------------
 
@@ -166,19 +169,23 @@ CREATE TABLE `tasks` (
   `description` text DEFAULT NULL,
   `project_id` bigint(20) UNSIGNED NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
-  `status` enum('pending','in_progress','completed') NOT NULL DEFAULT 'pending',
+  `status` enum('pending','in_progress','review','hold','completed') NOT NULL DEFAULT 'pending',
   `due_date` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `priority` varchar(255) NOT NULL DEFAULT 'medium',
+  `created_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `tasks`
 --
 
-INSERT INTO `tasks` (`id`, `title`, `description`, `project_id`, `user_id`, `status`, `due_date`, `created_at`, `updated_at`) VALUES
-(1, 'Task 1', 'Description', 6, 10, 'in_progress', '2026-02-07', '2026-02-03 05:54:37', '2026-02-05 04:05:48'),
-(3, 'Task 2', 'To check task comments part is working proper or not', 6, 10, 'in_progress', '2026-02-12', '2026-02-05 01:14:35', '2026-02-05 04:20:53');
+INSERT INTO `tasks` (`id`, `title`, `description`, `project_id`, `user_id`, `status`, `due_date`, `created_at`, `updated_at`, `priority`, `created_date`) VALUES
+(1, 'Task 1', 'Description', 6, 10, 'completed', '2026-02-07', '2026-02-03 05:54:37', '2026-02-10 08:06:58', 'medium', NULL),
+(3, 'Task 2 ttt', 'To check task comments part is working proper or not', 6, 10, 'in_progress', '2026-02-12', '2026-02-05 01:14:35', '2026-02-10 05:47:12', 'low', NULL),
+(9, 'prrr', 'prrr', 7, 10, 'pending', '2026-02-27', '2026-02-09 08:07:45', '2026-02-09 08:07:45', 'high', '2026-02-09'),
+(10, 'efref', 'rfrf', 22, 10, 'completed', '2026-02-11', '2026-02-11 02:05:18', '2026-02-11 02:05:47', 'medium', '2026-02-11');
 
 -- --------------------------------------------------------
 
@@ -205,9 +212,8 @@ INSERT INTO `task_comments` (`id`, `task_id`, `user_id`, `comment`, `file_path`,
 (1, 1, 5, 'ddd', 'task-files/YgiD8AoBlSjVrd9o39kMPUga97eW8TIbomf0X7Fh.jpg', NULL, '2026-02-04 08:28:18', '2026-02-04 08:28:18'),
 (2, 1, 5, 'eeeee', NULL, NULL, '2026-02-04 08:28:29', '2026-02-04 08:28:29'),
 (3, 1, 10, 'testing from dev user', NULL, NULL, '2026-02-05 03:53:17', '2026-02-05 03:53:17'),
-(4, 1, 5, 'updates ?', NULL, NULL, '2026-02-05 06:47:29', '2026-02-05 06:47:29'),
-(15, 1, 5, '666', NULL, NULL, '2026-02-05 07:35:55', '2026-02-05 07:35:55'),
-(16, 1, 10, '999', NULL, NULL, '2026-02-05 07:36:17', '2026-02-05 07:36:17');
+(34, 10, 10, 'rferfr', NULL, NULL, '2026-02-11 02:05:31', '2026-02-11 02:05:31'),
+(35, 3, 10, '52555', NULL, NULL, '2026-02-11 02:07:04', '2026-02-11 02:07:04');
 
 -- --------------------------------------------------------
 
@@ -232,10 +238,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`, `role`) VALUES
-(5, 'Anisha Prajapati', 'admin@admin.com', NULL, '$2y$12$KL8elPwUZaX1l3Oa7pR/ku0fWZOEDozzieVd5D1Wd5AUsVbIAXzze', NULL, '2026-01-30 07:01:07', '2026-02-03 07:17:17', 'admin'),
+(5, 'Anisha Prajapati', 'admin@admin.com', NULL, '$2y$12$KL8elPwUZaX1l3Oa7pR/ku0fWZOEDozzieVd5D1Wd5AUsVbIAXzze', NULL, '2026-01-30 07:01:07', '2026-02-09 07:41:45', 'admin'),
 (8, 'test user', 'user@user.com', NULL, '$2y$12$Zd.ANt2zT0pibQZQTNYeVuB/qnTBzfPW/aDiyVZoKXRzsp1JMQHMa', NULL, '2026-01-30 07:27:58', '2026-01-30 07:38:20', 'user'),
-(10, 'Developer', 'developer@reversethought.com', NULL, '$2y$12$a39YJx6/B/wZEKLbwXwetuB9ap9aGS.ZtZ4k61TPL.AYUfluVoJMy', NULL, '2026-02-03 01:53:00', '2026-02-03 01:53:11', 'user'),
-(11, 'user test', 'user1@user.com', NULL, '$2y$12$VLLTgMcOoHMFxJD1AoxrEu9NWviS1hxIey76ASw.Uq.mU6TTuWP3y', NULL, '2026-02-03 08:39:03', '2026-02-03 08:39:03', 'user');
+(10, 'Developer UI', 'developer@reversethought.com', NULL, '$2y$12$a39YJx6/B/wZEKLbwXwetuB9ap9aGS.ZtZ4k61TPL.AYUfluVoJMy', NULL, '2026-02-03 01:53:00', '2026-02-09 07:41:32', 'user');
 
 --
 -- Indexes for dumped tables
@@ -319,7 +324,7 @@ ALTER TABLE `failed_jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`
@@ -331,25 +336,25 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `task_comments`
 --
 ALTER TABLE `task_comments`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- Constraints for dumped tables

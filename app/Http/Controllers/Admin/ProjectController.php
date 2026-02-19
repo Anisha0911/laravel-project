@@ -11,9 +11,19 @@ use App\Models\User;
 class ProjectController extends Controller
 {
     // List Projects
-    public function index()
+public function index(Request $request)
 {
-    $projects = Project::with('user')->latest()->get();
+    // Start query
+    $query = Project::with('user');
+
+    // Search by project name
+    if ($request->search) {
+        $query->where('name', 'like', '%' . $request->search . '%');
+    }
+
+    // Get results
+    $projects = $query->latest()->get();
+
     return view('admin.projects.index', compact('projects'));
 }
 

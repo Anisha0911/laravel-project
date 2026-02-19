@@ -40,149 +40,133 @@ class UserTaskController extends Controller
     // ✅ AJAX Filter for tasks
 public function ajaxFilter(Request $request)
 {
-    $status = $request->query('status'); 
-    $date   = $request->query('date');   
-
     $query = Task::where('user_id', auth()->id());
 
-    $today = now()->toDateString();
-
-    // Apply status filter ONLY if it's a real status
-    if ($status && $status !== 'all') {
-        switch ($status) {
-            case 'in_time':
-                $query->where('due_date', '>=', $today)
+    // ---------- STATUS FILTER ----------
+    if ($request->status && $request->status !== 'all') {
+        switch ($request->status) {
+            case 'overdue':
+                $query->whereDate('due_date', '<', now())
                       ->where('status', '!=', 'completed');
                 break;
 
-            case 'delayed':
-                $query->where('due_date', '<', $today)
-                      ->where('status', '!=', 'completed');
+            case 'high_priority':
+                $query->whereIn('priority', ['high', 'urgent']);
                 break;
 
             default:
-                $query->where('status', $status);
+                $query->where('status', $request->status);
         }
     }
 
+    // ---------- SEARCH ----------
+    if ($request->search) {
+        $query->where('title', 'like', '%' . $request->search . '%');
+    }
 
-        // Only filter by status if it's not empty and not "all"
-    if ($status && $status !== 'all') {
-        switch ($status) {
-            case 'in_time':
-                $query->where('due_date', '>=', $today)
-                      ->where('status', '!=', 'completed');
+    // ---------- DATE FILTER ----------
+    if ($request->date) {
+        $query->whereDate('due_date', $request->date);
+    }
+
+    // ---------- SORT ----------
+    if ($request->sort) {
+        switch ($request->sort) {
+            case 'latest':
+                $query->latest();
                 break;
-
-            case 'delayed':
-                $query->where('due_date', '<', $today)
-                      ->where('status', '!=', 'completed');
+            case 'due_asc':
+                $query->orderBy('due_date', 'asc');
                 break;
-
-            default:
-                $query->where('status', $status);
+            case 'due_desc':
+                $query->orderBy('due_date', 'desc');
+                break;
+            case 'priority':
+                $query->orderByRaw("FIELD(priority, 'urgent', 'high', 'medium', 'low')");
+                break;
         }
+    } else {
+        $query->latest();
     }
 
-    
+    $tasks = $query->get();
 
-    // Apply date filter (works for all statuses including All)
-    if ($date) {
-        $query->whereDate('created_at', $date);
-    }
-
-    $tasks = $query->latest()->get();
-
-    // Generate HTML table rows
-    $html = '';
-    foreach ($tasks as $task) {
-        $statusMap = [
-            'pending' => ['secondary', 'bi-clock'],
-            'in_progress' => ['primary', 'bi-arrow-repeat'],
-            'review' => ['warning', 'bi-eye'],
-            'hold' => ['dark', 'bi-pause-circle'],
-            'completed' => ['success', 'bi-check-circle'],
-        ];
-
-        $priorityMap = [
-            'low' => ['success', 'bi-arrow-down'],
-            'medium' => ['warning', 'bi-dash-circle'],
-            'high' => ['danger', 'bi-arrow-up'],
-            'urgent' => ['dark', 'bi-exclamation-triangle'],
-        ];
-
-        $statusColor = $statusMap[$task->status][0] ?? 'secondary';
-        $statusIcon  = $statusMap[$task->status][1] ?? 'bi-question-circle';
-
-        $priorityColor = $priorityMap[$task->priority][0] ?? 'secondary';
-        $priorityIcon  = $priorityMap[$task->priority][1] ?? 'bi-dash';
-
-        $html .= "
-        <tr>
-            <td class='fw-semibold'>
-                {$task->title}
-                <div class='small text-muted'>".($task->project->name ?? '')."</div>
-            </td>
-            <td class='text-muted'>".$task->created_at->format('d M Y')."</td>
-            <td>
-                <span class='badge bg-{$statusColor}'>
-                    <i class='bi {$statusIcon}'></i>
-                    ".ucfirst(str_replace('_',' ',$task->status))."
-                </span>
-            </td>
-            <td>
-                <span class='badge bg-{$priorityColor}'>
-                    <i class='bi {$priorityIcon}'></i>
-                    ".ucfirst($task->priority)."
-                </span>
-            </td>
-            <td class='text-muted'>".($task->due_date ? $task->due_date->format('d M Y') : 'N/A')."</td>
-            <td class='text-center'>
-                <a href='".route('user.tasks.show',$task)."' class='btn btn-sm btn-primary'>View</a>
-            </td>
-        </tr>";
-    }
-
-    if ($html === '') {
-        $html = "<tr><td colspan='6' class='text-center text-muted py-4'>No tasks found.</td></tr>";
-    }
-
-    // Update counts for all filters
-    $allTasks = Task::where('user_id', auth()->id())->get();
-
-    $counts = [
-        'completed'    => $allTasks->where('status', 'completed')->count(),
-        'in_progress'  => $allTasks->where('status', 'in_progress')->count(),
-        'hold'         => $allTasks->where('status', 'hold')->count(),
-        'pending'      => $allTasks->where('status', 'pending')->count(),
-        'in_time'      => $allTasks->where('due_date', '>=', $today)->where('status', '!=', 'completed')->count(),
-        'delayed'      => $allTasks->where('due_date', '<', $today)->where('status', '!=', 'completed')->count(),
-        'all'          => $allTasks->count(),
-    ];
-
-    return response()->json(['rows' => $html, 'counts' => $counts]);
+    // If no tasks found, generate a "no tasks" row
+if ($tasks->isEmpty()) {
+    $rows = '<tr>
+        <td colspan="7" class="text-center text-muted py-4">
+            <i class="bi bi-folder-x fs-4"></i><br>
+            No ' . ucfirst(str_replace('_',' ',$request->status ?: 'tasks')) . ' found.
+        </td>
+    </tr>';
+} else {
+    $rows = view('user.tasks.partials.task_rows', compact('tasks'))->render();
 }
 
+    // ---------- RETURN ROWS ----------
+    $rows = view('user.tasks.partials.task_rows', compact('tasks'))->render();
+
+    // ---------- COUNT FOR FILTER CARDS ----------
+    $counts = [
+        'all' => Task::where('user_id', auth()->id())->count(),
+        'completed' => Task::where('user_id', auth()->id())->where('status','completed')->count(),
+        'in_progress' => Task::where('user_id', auth()->id())->where('status','in_progress')->count(),
+        'hold' => Task::where('user_id', auth()->id())->where('status','hold')->count(),
+        'pending' => Task::where('user_id', auth()->id())->where('status','pending')->count(),
+        'overdue' => Task::where('user_id', auth()->id())
+                          ->whereDate('due_date', '<', now())
+                          ->where('status', '!=', 'completed')->count(),
+        'high_priority' => Task::where('user_id', auth()->id())
+                               ->whereIn('priority', ['high','urgent'])->count(),
+    ];
+
+    return response()->json([
+        'rows' => $rows,
+        'counts' => $counts
+    ]);
+}
 
 
     // ✅ Show single task
     public function show(Task $task)
     {
         abort_if($task->user_id !== Auth::id(), 403);
-
         return view('user.tasks.show', compact('task'));
     }
 
+
     public function updateStatus(Request $request, Task $task)
-{
-    abort_if($task->user_id !== auth()->id(), 403);
+    {
+        abort_if($task->user_id !== auth()->id(), 403);
+        $request->validate([
+            'status' => 'required|in:pending,in_progress,review,hold,completed'
+        ]);
+        $task->update([
+            'status' => $request->status
+        ]);
 
-    $task->update([
-        'status' => $request->status
-    ]);
+        return back();
+    }
 
-    return back();
-}
+    public function bulkComplete(Request $request)
+    {
+        $taskIds = $request->input('ids', []);
+        if(!empty($taskIds)){
+            Task::whereIn('id', $taskIds)
+                ->where('user_id', auth()->id())
+                ->update(['status' => 'completed']);
+        }
+        return response()->json(['success' => true]);
+    }
 
-
+    public function bulkDelete(Request $request)
+    {
+        $taskIds = $request->input('ids', []);
+        if(!empty($taskIds)){
+            Task::whereIn('id', $taskIds)
+                ->where('user_id', auth()->id())
+                ->delete();
+        }
+        return response()->json(['success' => true]);
+    }
 }
